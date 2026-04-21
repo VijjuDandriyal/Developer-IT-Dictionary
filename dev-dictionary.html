@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevLex — Developer IT Dictionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #09090b;
+  --surface: #111115;
+  --surface2: #18181d;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #f0ede8;
+  --muted: #7a7880;
+  --subtle: #3a3840;
+  --accent: #a8ff3e;
+  --accent-dim: rgba(168,255,62,0.12);
+  --accent-border: rgba(168,255,62,0.35);
+  --radius: 12px;
+  --radius-sm: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── NOISE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size: 256px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ─── GRID BG ─── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* ─── GLOW ─── */
+.glow {
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,255,62,0.06) 0%, transparent 70%);
+  top: -200px; right: -100px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ─── LAYOUT ─── */
+.shell {
+  position: relative; z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ─── HEADER ─── */
+header {
+  margin-bottom: 48px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+h1 span {
+  color: var(--accent);
+}
+
+.tagline {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 480px;
+}
+
+/* ─── STAT PILLS ─── */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stat-pill strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ─── SEARCH BAR ─── */
+.search-wrap {
+  position: relative;
+  margin-bottom: 16px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+#search {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px 14px 46px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+#search::placeholder { color: var(--muted); }
+
+#search:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px rgba(168,255,62,0.08);
+}
+
+kbd {
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ─── CONTROLS ROW ─── */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.6s 0.15s ease both;
+}
+
+.cat-btn {
+  padding: 7px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.cat-btn:hover { border-color: var(--border-hover); color: var(--text); }
+
+.cat-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+/* ─── ALPHA BAR ─── */
+.alpha-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 28px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.a-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--subtle);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.a-btn:hover { background: var(--surface2); color: var(--text); }
+
+.a-btn.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.a-btn.has-terms { color: var(--muted); }
+
+/* ─── RESULTS HEADER ─── */
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+#result-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sort-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  outline: none;
+}
+
+/* ─── GRID ─── */
+#dict {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+/* ─── CARD ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  cursor: default;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  animation: cardIn 0.35s ease both;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: var(--cat-color, var(--subtle));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+.card:hover::before { opacity: 1; }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+.term {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.def {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+.also {
+  margin-top: 10px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--subtle);
+}
+
+.also::before {
+  content: '→';
+  color: var(--accent);
+  font-size: 11px;
+}
+
+/* ─── EMPTY ─── */
+#empty {
+  display: none;
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--muted);
+}
+
+#empty svg { margin-bottom: 16px; opacity: 0.3; }
+#empty p { font-size: 14px; }
+#empty small {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--subtle);
+  margin-top: 6px;
+  display: block;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--subtle); border-radius: 3px; }
+
+/* ─── HIGHLIGHT ─── */
+mark {
+  background: rgba(168,255,62,0.25);
+  color: var(--accent);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ─── DIVIDER ─── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 28px 0;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+footer p {
+  font-size: 12px;
+  color: var(--subtle);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+footer span { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="shell">
+
+  <!-- HEADER -->
+  <header>
+    <p class="eyebrow">// ready reference · v2.0</p>
+    <h1>Dev<span>Lex</span></h1>
+    <p class="tagline">A worldwide developer dictionary for information technology — 200+ terms, every domain.</p>
+    <div class="stats-row">
+      <div class="stat-pill"><strong id="total-count">200</strong> terms</div>
+      <div class="stat-pill"><strong>15</strong> categories</div>
+      <div class="stat-pill"><strong>∞</strong> caffeine required</div>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <svg class="search-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="search" type="text" placeholder="Search any term, acronym, or concept…" autocomplete="off" spellcheck="false" />
+    <kbd>/</kbd>
+  </div>
+
+  <!-- CATEGORY FILTERS -->
+  <div class="controls" id="catControls">
+    <button class="cat-btn active" data-cat="">All</button>
+  </div>
+
+  <!-- ALPHA BAR -->
+  <div class="alpha-bar" id="alphaBar"></div>
+
+  <!-- RESULTS META -->
+  <div class="results-header">
+    <span id="result-count"></span>
+    <select class="sort-select" id="sortSel">
+      <option value="alpha">A → Z</option>
+      <option value="cat">By category</option>
+    </select>
+  </div>
+
+  <!-- DICTIONARY GRID -->
+  <div id="dict">
+    <div id="empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>No terms found</p>
+      <small id="empty-hint"></small>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>// DevLex &mdash; built for <span>developers</span></p>
+    <p>last updated · <span>2025</span></p>
+  </footer>
+
+</div>
+
+<script>
+const CAT_COLORS = {
+  "Networking":   { bg:"rgba(56,189,248,0.12)", border:"rgba(56,189,248,0.3)", text:"#7dd3fc", bar:"#38bdf8" },
+  "Security":     { bg:"rgba(248,113,113,0.12)", border:"rgba(248,113,113,0.3)", text:"#fca5a5", bar:"#f87171" },
+  "Databases":    { bg:"rgba(74,222,128,0.12)", border:"rgba(74,222,128,0.3)", text:"#86efac", bar:"#4ade80" },
+  "Web Dev":      { bg:"rgba(167,139,250,0.12)", border:"rgba(167,139,250,0.3)", text:"#c4b5fd", bar:"#a78bfa" },
+  "DevOps":       { bg:"rgba(251,191,36,0.12)", border:"rgba(251,191,36,0.3)", text:"#fde68a", bar:"#fbbf24" },
+  "Cloud":        { bg:"rgba(34,211,238,0.12)", border:"rgba(34,211,238,0.3)", text:"#67e8f9", bar:"#22d3ee" },
+  "Programming":  { bg:"rgba(244,114,182,0.12)", border:"rgba(244,114,182,0.3)", text:"#f9a8d4", bar:"#f472b6" },
+  "AI/ML":        { bg:"rgba(168,255,62,0.12)", border:"rgba(168,255,62,0.3)", text:"#a8ff3e", bar:"#a8ff3e" },
+  "OS":           { bg:"rgba(148,163,184,0.12)", border:"rgba(148,163,184,0.3)", text:"#cbd5e1", bar:"#94a3b8" },
+  "Architecture": { bg:"rgba(99,179,237,0.12)", border:"rgba(99,179,237,0.3)", text:"#90cdf4", bar:"#63b3ed" },
+  "Data Formats": { bg:"rgba(110,231,183,0.12)", border:"rgba(110,231,183,0.3)", text:"#6ee7b7", bar:"#6ee7b7" },
+  "Testing":      { bg:"rgba(249,168,212,0.12)", border:"rgba(249,168,212,0.3)", text:"#fbcfe8", bar:"#f9a8d4" },
+  "Mobile":       { bg:"rgba(129,140,248,0.12)", border:"rgba(129,140,248,0.3)", text:"#a5b4fc", bar:"#818cf8" },
+  "Tools":        { bg:"rgba(253,186,116,0.12)", border:"rgba(253,186,116,0.3)", text:"#fed7aa", bar:"#fdba74" },
+  "Concepts":     { bg:"rgba(156,163,175,0.12)", border:"rgba(156,163,175,0.3)", text:"#d1d5db", bar:"#9ca3af" },
+};
+
+const TERMS = [
+  {t:"API",c:"Web Dev",d:"Application Programming Interface — a contract that lets two software systems communicate via defined endpoints, request methods, and data formats.",also:"REST API, GraphQL, gRPC"},
+  {t:"REST",c:"Web Dev",d:"Representational State Transfer — an architectural style for web APIs using stateless HTTP methods (GET, POST, PUT, DELETE) to manipulate resources."},
+  {t:"GraphQL",c:"Web Dev",d:"A query language for APIs where clients specify exactly what data they need, reducing over-fetching and under-fetching compared to REST."},
+  {t:"WebSocket",c:"Networking",d:"A protocol providing full-duplex communication channels over a single TCP connection, enabling real-time data push from server to client."},
+  {t:"HTTP/3",c:"Networking",d:"The third major version of HTTP, built on QUIC instead of TCP, offering lower latency and improved performance on lossy networks."},
+  {t:"CDN",c:"Networking",d:"Content Delivery Network — a geographically distributed server network that delivers static assets to users from the nearest edge node."},
+  {t:"DNS",c:"Networking",d:"Domain Name System — translates human-readable domain names into IP addresses used to route internet traffic.",also:"A record, CNAME, TTL"},
+  {t:"IP Address",c:"Networking",d:"A unique numerical label (IPv4: 192.168.1.1 or IPv6: 2001:db8::1) assigned to each device in a network to identify and locate it."},
+  {t:"TCP/IP",c:"Networking",d:"The foundational suite of protocols governing how data is transmitted across the internet, combining TCP reliability with IP addressing."},
+  {t:"SSL/TLS",c:"Security",d:"Secure Sockets Layer / Transport Layer Security — cryptographic protocols providing end-to-end encryption for data in transit over networks."},
+  {t:"OAuth 2.0",c:"Security",d:"An authorization framework allowing third-party apps to access user resources without exposing passwords, using scoped access tokens."},
+  {t:"JWT",c:"Security",d:"JSON Web Token — a compact, URL-safe token format encoding claims signed with a secret or key pair for stateless authentication."},
+  {t:"XSS",c:"Security",d:"Cross-Site Scripting — a vulnerability where attackers inject malicious scripts into web pages viewed by other users."},
+  {t:"SQL Injection",c:"Security",d:"An attack inserting malicious SQL code into input fields to manipulate database queries and gain unauthorized access or data."},
+  {t:"HTTPS",c:"Security",d:"HTTP Secure — HTTP with TLS encryption, ensuring confidentiality, integrity, and server authentication between browser and server."},
+  {t:"Firewall",c:"Security",d:"A network security system monitoring and controlling incoming/outgoing traffic based on predefined security rules."},
+  {t:"CORS",c:"Security",d:"Cross-Origin Resource Sharing — a browser mechanism controlling which origins can access server resources via HTTP headers."},
+  {t:"2FA / MFA",c:"Security",d:"Two/Multi-Factor Authentication — requires two or more verification methods (password + OTP, biometric) before granting access."},
+  {t:"Penetration Testing",c:"Security",d:"Authorized simulated cyberattack on a system to identify and report vulnerabilities before malicious actors can exploit them."},
+  {t:"Zero Trust",c:"Security",d:"A security model requiring strict identity verification for every user and device, regardless of network location."},
+  {t:"CSRF",c:"Security",d:"Cross-Site Request Forgery — tricks users into submitting unauthorized requests to sites where they're authenticated.",also:"anti-CSRF token"},
+  {t:"Encryption",c:"Security",d:"The process of encoding data so only authorized parties with the decryption key can read it — symmetric or asymmetric.",also:"AES, RSA, ECC"},
+  {t:"SQL",c:"Databases",d:"Structured Query Language — the standard language for creating, reading, updating, and deleting data in relational databases.",also:"SELECT, JOIN, WHERE"},
+  {t:"NoSQL",c:"Databases",d:"Non-relational databases for flexible schemas, horizontal scaling, and diverse data models: document, key-value, graph, columnar."},
+  {t:"ACID",c:"Databases",d:"Atomicity, Consistency, Isolation, Durability — properties guaranteeing reliable database transactions even on failure."},
+  {t:"ORM",c:"Databases",d:"Object-Relational Mapping — converts data between relational tables and OOP code, abstracting raw SQL.",also:"Prisma, SQLAlchemy"},
+  {t:"Indexing",c:"Databases",d:"Creating a lookup structure on database columns to accelerate queries at the cost of write overhead and storage."},
+  {t:"Sharding",c:"Databases",d:"Horizontal partitioning — splitting large datasets across multiple machines to improve performance and scalability."},
+  {t:"Replication",c:"Databases",d:"Copying data from a primary database to replicas for redundancy, read scaling, and disaster recovery."},
+  {t:"CAP Theorem",c:"Databases",d:"A distributed database can guarantee at most two of: Consistency, Availability, Partition tolerance."},
+  {t:"Caching",c:"Databases",d:"Storing copies of frequently accessed data in fast memory to reduce repeated expensive queries or computations.",also:"Redis, Memcached"},
+  {t:"Transaction",c:"Databases",d:"A unit of database work executed atomically — either fully completed (commit) or fully undone (rollback) on failure."},
+  {t:"B-Tree Index",c:"Databases",d:"The most common database index structure — a self-balancing tree enabling O(log n) lookups, inserts, and range queries."},
+  {t:"Docker",c:"DevOps",d:"A platform packaging applications and their dependencies into portable, isolated containers that run consistently across environments."},
+  {t:"Kubernetes",c:"DevOps",d:"An open-source container orchestration system automating deployment, scaling, and management of containerized workloads.",also:"K8s, pods, services"},
+  {t:"CI/CD",c:"DevOps",d:"Continuous Integration / Delivery — automating code testing and deployment pipelines for faster, reliable releases."},
+  {t:"IaC",c:"DevOps",d:"Infrastructure as Code — managing and provisioning infrastructure through machine-readable config files, not manual processes.",also:"Terraform, Ansible"},
+  {t:"Helm",c:"DevOps",d:"A Kubernetes package manager using templated YAML charts to define, install, and upgrade complex cluster applications."},
+  {t:"GitOps",c:"DevOps",d:"A practice where Git repositories are the single source of truth for declarative infrastructure and application configuration."},
+  {t:"Monitoring",c:"DevOps",d:"Collecting, analyzing, and alerting on metrics, logs, and traces to detect issues and ensure system reliability.",also:"Prometheus, Grafana"},
+  {t:"Blue-Green Deploy",c:"DevOps",d:"Maintaining two identical production environments, switching traffic between them for zero-downtime releases."},
+  {t:"Canary Release",c:"DevOps",d:"Rolling out a new version to a small user subset first to detect bugs before a full production release."},
+  {t:"Service Mesh",c:"DevOps",d:"Infrastructure layer handling service-to-service communication: load balancing, observability, mTLS automatically.",also:"Istio, Linkerd"},
+  {t:"Feature Flag",c:"DevOps",d:"Toggling features on/off at runtime without deploying new code — enables gradual rollouts and A/B testing."},
+  {t:"OpenTelemetry",c:"DevOps",d:"A CNCF vendor-neutral standard for collecting distributed traces, metrics, and logs from applications.",also:"OTel"},
+  {t:"AWS",c:"Cloud",d:"Amazon Web Services — the world's largest cloud platform offering 200+ services: compute, storage, databases, and AI."},
+  {t:"Serverless",c:"Cloud",d:"Cloud model where the provider manages servers; developers deploy event-triggered functions, paying only for execution time.",also:"Lambda, Cloud Functions"},
+  {t:"IaaS",c:"Cloud",d:"Infrastructure as a Service — cloud model providing virtualized compute resources (VMs, storage, networking) over the internet."},
+  {t:"PaaS",c:"Cloud",d:"Platform as a Service — managed platform (runtime, OS, middleware) for building and deploying applications without managing servers."},
+  {t:"SaaS",c:"Cloud",d:"Software as a Service — fully managed software delivered over the internet; provider handles infrastructure, updates, scaling."},
+  {t:"Auto Scaling",c:"Cloud",d:"Automatically adjusting compute capacity (adding/removing instances) based on traffic to maintain performance and minimize cost."},
+  {t:"Load Balancer",c:"Cloud",d:"Distributes incoming network traffic across multiple servers to prevent bottlenecks and ensure high availability.",also:"ALB, NLB"},
+  {t:"Object Storage",c:"Cloud",d:"Managing data as discrete objects with metadata — ideal for unstructured data like files, images, and backups.",also:"S3, Azure Blob"},
+  {t:"VPC",c:"Cloud",d:"Virtual Private Cloud — an isolated section of a cloud network where you launch resources in a defined virtual network."},
+  {t:"Edge Computing",c:"Cloud",d:"Processing data closer to its source (devices, edge nodes) to reduce latency for time-sensitive applications."},
+  {t:"FinOps",c:"Cloud",d:"Financial Operations — a practice bringing financial accountability to cloud spending through cross-team collaboration."},
+  {t:"Git",c:"Tools",d:"A distributed version control system tracking source code changes and enabling branching collaboration workflows.",also:"GitHub, GitLab, Bitbucket"},
+  {t:"IDE",c:"Tools",d:"Integrated Development Environment — code editor + debugger + build tools + VCS integration in one application.",also:"VS Code, IntelliJ, Neovim"},
+  {t:"Package Manager",c:"Tools",d:"Automates installing, updating, and managing software libraries and their dependency trees.",also:"npm, pip, cargo, brew, apt"},
+  {t:"Webpack",c:"Tools",d:"A JavaScript module bundler processing and bundling assets (JS, CSS, images) for browser delivery with tree-shaking."},
+  {t:"Linter",c:"Tools",d:"A static analysis tool flagging programming errors, style violations, and anti-patterns without executing the code.",also:"ESLint, Pylint, Clippy"},
+  {t:"Postman",c:"Tools",d:"An API platform for building, testing, documenting, and sharing APIs with an interactive HTTP request GUI."},
+  {t:"Terraform",c:"Tools",d:"HashiCorp's IaC tool using declarative HCL to provision and manage cloud resources across multiple providers."},
+  {t:"Swagger / OpenAPI",c:"Tools",d:"A specification for describing RESTful APIs in machine-readable format, enabling auto-generated docs and client SDKs."},
+  {t:"SDK",c:"Tools",d:"Software Development Kit — tools, libraries, docs, and samples to help developers build for a specific platform or API."},
+  {t:"CLI",c:"Tools",d:"Command-Line Interface — text-based interface for interacting with software or an OS by typing commands in a terminal."},
+  {t:"OOP",c:"Programming",d:"Object-Oriented Programming — organizes code into objects with state (fields) and behavior (methods) using encapsulation, inheritance, polymorphism."},
+  {t:"Functional Programming",c:"Programming",d:"A paradigm treating computation as evaluation of pure mathematical functions, avoiding shared mutable state."},
+  {t:"Recursion",c:"Programming",d:"A technique where a function calls itself with simpler inputs to solve a problem by reducing it to base cases."},
+  {t:"Big O Notation",c:"Programming",d:"Mathematical notation describing algorithm time/space complexity relative to input size n — e.g. O(n), O(log n), O(n²)."},
+  {t:"Design Pattern",c:"Programming",d:"A reusable solution template for common software design problems — Singleton, Observer, Factory, Strategy, etc."},
+  {t:"Async / Await",c:"Programming",d:"Syntax for writing asynchronous code in a readable synchronous style, built on Promises/Futures to avoid callback hell."},
+  {t:"Garbage Collection",c:"Programming",d:"Automatic memory management — the runtime finds and frees memory for unreachable objects, preventing leaks.",also:"GC, JVM, V8"},
+  {t:"Concurrency",c:"Programming",d:"Handling multiple tasks via interleaved execution, managed with threads, coroutines, or event loops."},
+  {t:"Dependency Injection",c:"Programming",d:"A pattern where a class receives its dependencies from outside rather than creating them, improving testability and decoupling."},
+  {t:"Polymorphism",c:"Programming",d:"Different objects responding to the same interface or method call in different ways — a core OOP concept."},
+  {t:"Type System",c:"Programming",d:"Rules assigning types to variables and functions in a language to catch certain bugs at compile time or runtime."},
+  {t:"Compiler",c:"Programming",d:"Translates source code from a high-level language into machine code or an intermediate representation."},
+  {t:"Regex",c:"Programming",d:"Regular Expression — a pattern syntax for matching, validating, and parsing strings efficiently.",also:"grep, sed, PCRE"},
+  {t:"Closure",c:"Programming",d:"A function retaining access to its enclosing lexical scope even after the outer function has finished executing."},
+  {t:"Immutability",c:"Programming",d:"Data that cannot be modified after creation — foundational in functional programming and thread-safe code."},
+  {t:"First-Class Function",c:"Programming",d:"Functions that can be assigned to variables, passed as arguments, and returned from other functions."},
+  {t:"Machine Learning",c:"AI/ML",d:"A subset of AI where algorithms learn patterns from data to make predictions or decisions without explicit programming."},
+  {t:"Neural Network",c:"AI/ML",d:"A layered computational model inspired by biological neurons that learns to transform inputs to outputs through training."},
+  {t:"LLM",c:"AI/ML",d:"Large Language Model — a transformer neural network trained on vast text data to understand and generate human language.",also:"GPT, Claude, Gemini"},
+  {t:"Transformer",c:"AI/ML",d:"The neural architecture behind modern LLMs, using self-attention mechanisms to model relationships in sequential data."},
+  {t:"RAG",c:"AI/ML",d:"Retrieval-Augmented Generation — pairing vector search over a knowledge base with LLM generation to ground responses in facts."},
+  {t:"Embedding",c:"AI/ML",d:"A dense vector representing data in high-dimensional space where semantically similar items cluster together."},
+  {t:"Fine-tuning",c:"AI/ML",d:"Further training a pre-trained model on domain-specific data to specialize it for a particular task."},
+  {t:"Gradient Descent",c:"AI/ML",d:"An optimization algorithm minimizing a loss function by adjusting model parameters toward the steepest downhill direction."},
+  {t:"Overfitting",c:"AI/ML",d:"When a model memorizes training data noise, performing poorly on unseen data — fixed with regularization or more data."},
+  {t:"Vector Database",c:"AI/ML",d:"A database optimized for storing and querying high-dimensional embeddings using approximate nearest-neighbor search.",also:"Pinecone, Weaviate, pgvector"},
+  {t:"Prompt Engineering",c:"AI/ML",d:"Crafting inputs to AI models to guide output quality — few-shot examples, chain-of-thought, system prompts."},
+  {t:"Tokenization",c:"AI/ML",d:"Splitting text into smaller units (tokens) — the basic input unit for language models, affecting context window limits."},
+  {t:"Hyperparameter",c:"AI/ML",d:"Model configuration set before training (learning rate, batch size, layers) as opposed to learned parameters."},
+  {t:"Linux",c:"OS",d:"An open-source Unix-like OS kernel powering most servers, embedded systems, Android devices, and supercomputers."},
+  {t:"Process",c:"OS",d:"An instance of a running program with its own memory space, file handles, and system resources managed by the OS."},
+  {t:"Thread",c:"OS",d:"The smallest CPU scheduling unit — multiple threads share a process's memory for concurrent execution."},
+  {t:"Kernel",c:"OS",d:"The core OS component managing hardware, process scheduling, memory, and system call interfaces."},
+  {t:"File System",c:"OS",d:"How an OS organizes, stores, and retrieves data on storage — ext4, NTFS, APFS, ZFS, btrfs.",},
+  {t:"Shell",c:"OS",d:"A command-line interface for interacting with the OS through text commands, scripts, and pipes.",also:"bash, zsh, fish, PowerShell"},
+  {t:"Virtual Machine",c:"OS",d:"An emulation of a physical computer running an OS in isolated software on shared hardware.",also:"VM, hypervisor, VMware, KVM"},
+  {t:"Deadlock",c:"OS",d:"A state where processes wait indefinitely for resources held by each other — a classic concurrency hazard."},
+  {t:"Semaphore",c:"OS",d:"A synchronization primitive controlling access to shared resources among concurrent processes or threads."},
+  {t:"Paging",c:"OS",d:"Memory management dividing physical memory into fixed frames and logical memory into pages for efficient allocation."},
+  {t:"Microservices",c:"Architecture",d:"Structuring an app as a collection of small, independently deployable services communicating via APIs or events."},
+  {t:"Monolith",c:"Architecture",d:"A single-tiered app where all components (UI, logic, data) are tightly coupled and deployed as one unit."},
+  {t:"Event-Driven Architecture",c:"Architecture",d:"Components communicate by producing and consuming events asynchronously through an event bus or broker.",also:"Kafka, RabbitMQ"},
+  {t:"Message Queue",c:"Architecture",d:"Decouples services by storing messages producers emit for consumers to process asynchronously.",also:"Kafka, RabbitMQ, SQS"},
+  {t:"CQRS",c:"Architecture",d:"Command Query Responsibility Segregation — separating read and write models for independent scalability."},
+  {t:"Event Sourcing",c:"Architecture",d:"Persisting state changes as an immutable event log rather than current state — enabling audit trails and time travel."},
+  {t:"DDD",c:"Architecture",d:"Domain-Driven Design — software design aligned with business domains using ubiquitous language and bounded contexts."},
+  {t:"API Gateway",c:"Architecture",d:"Single entry point for clients routing to microservices, handling auth, rate limiting, SSL termination, and observability."},
+  {t:"Saga Pattern",c:"Architecture",d:"Managing distributed transactions across microservices as a sequence of local transactions with compensating actions."},
+  {t:"Circuit Breaker",c:"Architecture",d:"A resilience pattern that stops requests to failing services temporarily to prevent cascading failures."},
+  {t:"Pub/Sub",c:"Architecture",d:"Publish/Subscribe — publishers emit to topics; subscribers receive messages without direct coupling.",also:"Google Pub/Sub, SNS"},
+  {t:"JSON",c:"Data Formats",d:"JavaScript Object Notation — lightweight, human-readable data interchange using key-value pairs, arrays, and primitives."},
+  {t:"XML",c:"Data Formats",d:"Extensible Markup Language — verbose, tag-based format for encoding documents in human- and machine-readable form."},
+  {t:"YAML",c:"Data Formats",d:"YAML Ain't Markup Language — human-friendly serialization language commonly used for config files and CI pipelines."},
+  {t:"Protocol Buffers",c:"Data Formats",d:"Google's binary serialization — faster and smaller than JSON, requiring a .proto schema for message definitions.",also:"protobuf"},
+  {t:"gRPC",c:"Data Formats",d:"High-performance RPC framework by Google using HTTP/2 and Protocol Buffers for efficient inter-service communication."},
+  {t:"CSV",c:"Data Formats",d:"Comma-Separated Values — plain-text tabular format with newline-delimited rows and comma-delimited fields."},
+  {t:"Markdown",c:"Data Formats",d:"Lightweight markup language with plain-text formatting syntax converting to HTML — standard for docs and READMEs."},
+  {t:"Encoding",c:"Data Formats",d:"Converting data from one representation to another for storage, transmission, or compatibility.",also:"Base64, UTF-8, URL encoding"},
+  {t:"Unit Testing",c:"Testing",d:"Testing individual functions in isolation to verify correct behavior — the base of a healthy test pyramid.",also:"Jest, pytest, JUnit"},
+  {t:"Integration Testing",c:"Testing",d:"Testing the interaction between multiple components or services to ensure they work correctly in combination."},
+  {t:"TDD",c:"Testing",d:"Test-Driven Development — writing tests before implementation code, driving design through red-green-refactor."},
+  {t:"Mocking",c:"Testing",d:"Replacing real dependencies (APIs, databases) with simulated objects that mimic behavior during isolated testing."},
+  {t:"E2E Testing",c:"Testing",d:"End-to-End Testing — simulating real user journeys through the full stack to verify all components interoperate.",also:"Playwright, Cypress"},
+  {t:"Code Coverage",c:"Testing",d:"Percentage of source code executed during test runs — a proxy metric for test thoroughness."},
+  {t:"Mutation Testing",c:"Testing",d:"Introducing small code changes (mutations) to verify test suites can actually detect those faults."},
+  {t:"Native App",c:"Mobile",d:"A mobile app built with platform-specific languages and SDKs — Swift/Xcode for iOS, Kotlin/Android Studio for Android."},
+  {t:"React Native",c:"Mobile",d:"A framework for building native iOS and Android apps using React and JavaScript, sharing most logic cross-platform."},
+  {t:"PWA",c:"Mobile",d:"Progressive Web App — web apps using modern browser APIs to deliver offline support, push notifications, and install prompts."},
+  {t:"APK",c:"Mobile",d:"Android Package Kit — the file format used to distribute and install applications on Android devices."},
+  {t:"Push Notification",c:"Mobile",d:"Messages sent from a server to a user's device proactively, without the user actively requesting them.",also:"FCM, APNs"},
+  {t:"Flutter",c:"Mobile",d:"Google's UI framework for building natively compiled apps for mobile, web, and desktop from a single Dart codebase."},
+  {t:"Abstraction",c:"Concepts",d:"Hiding complex implementation details behind a simplified interface so users don't need to know the internals."},
+  {t:"Latency",c:"Concepts",d:"Time delay between making a request and receiving a response — critical performance metric in distributed systems."},
+  {t:"Throughput",c:"Concepts",d:"The amount of data or number of requests processed per unit of time — a measure of system capacity."},
+  {t:"Idempotency",c:"Concepts",d:"Performing the same operation multiple times yields the same result as once — essential property for safe retries."},
+  {t:"Technical Debt",c:"Concepts",d:"The implied cost of rework from choosing a quick suboptimal solution now over a better approach that takes longer."},
+  {t:"Scalability",c:"Concepts",d:"A system's ability to handle increased load — horizontally (more nodes) or vertically (larger nodes)."},
+  {t:"Observability",c:"Concepts",d:"Understanding a system's internal state from its outputs — the three pillars are logs, metrics, and traces."},
+  {t:"SLA / SLO / SLI",c:"Concepts",d:"Service Level Agreement / Objective / Indicator — contracts and metrics defining expected system availability and performance."},
+  {t:"Webhook",c:"Concepts",d:"An HTTP callback triggered by an event in one service, sending real-time data to another service's endpoint."},
+  {t:"Rate Limiting",c:"Concepts",d:"Controlling the frequency of API requests per user or IP in a time window to prevent abuse and ensure fairness."},
+  {t:"Hash Function",c:"Concepts",d:"A deterministic function mapping arbitrary input to a fixed-size output — used in cryptography and hash tables.",also:"SHA-256, MD5, bcrypt"},
+  {t:"Middleware",c:"Concepts",d:"Software sitting between the OS/network and applications providing cross-cutting concerns: auth, logging, transformation."},
+  {t:"Memory Leak",c:"Concepts",d:"A bug where allocated memory is never freed, causing gradual memory exhaustion and eventual crashes over time."},
+  {t:"Deprecation",c:"Concepts",d:"Marking a feature, API, or library as outdated and scheduled for removal, signaling developers to migrate."},
+  {t:"Binary",c:"Concepts",d:"The base-2 numeral system using only 0 and 1 — fundamental data representation in all digital computers."},
+  {t:"Proxy",c:"Networking",d:"An intermediary server forwarding client requests to other servers — used for caching, load balancing, and anonymization."},
+  {t:"SSH",c:"Networking",d:"Secure Shell — cryptographic protocol for securely accessing and managing remote machines over unsecured networks."},
+  {t:"gzip",c:"Networking",d:"A compression format widely used in HTTP to reduce transfer size of text assets like HTML, CSS, and JavaScript."},
+  {t:"SMTP",c:"Networking",d:"Simple Mail Transfer Protocol — standard protocol for sending email messages between mail servers."},
+  {t:"OSI Model",c:"Networking",d:"7-layer conceptual framework describing how network protocols interact, from Physical layer to Application layer."},
+  {t:"WebAssembly",c:"Web Dev",d:"A binary instruction format enabling near-native performance for C, C++, and Rust code running in browsers.",also:"Wasm"},
+  {t:"SSR",c:"Web Dev",d:"Server-Side Rendering — generating full HTML on the server per request, improving SEO and initial load time.",also:"Next.js, Nuxt"},
+  {t:"CSR",c:"Web Dev",d:"Client-Side Rendering — browser downloads minimal HTML + JS that renders the entire UI on the client side."},
+  {t:"Hot Reload",c:"Tools",d:"Code changes reflected instantly in a running app without a full restart — dramatically speeds up development iteration."},
+  {t:"Namespace",c:"Programming",d:"A declarative scope for identifiers (types, functions, variables) preventing naming conflicts in large codebases."},
+  {t:"Bytecode",c:"Programming",d:"Intermediate portable instructions compiled from source code, executed by a VM (JVM, CLR) at runtime."},
+  {t:"Data Pipeline",c:"AI/ML",d:"Automated sequence of processes ingesting, transforming, and loading data from sources to destinations.",also:"ETL, ELT, dbt"},
+  {t:"Containerization",c:"DevOps",d:"Packaging an app with its dependencies into a container image that runs consistently across all environments."},
+  {t:"Heap vs Stack",c:"OS",d:"Stack is fast LIFO memory for local variables. Heap is dynamic, larger memory for objects allocated at runtime."},
+  {t:"Endianness",c:"Concepts",d:"Byte order in memory — big-endian stores most significant byte first; little-endian stores it last.",also:"network byte order"},
+];
+
+document.getElementById("total-count").textContent = TERMS.length;
+
+// Build category buttons
+const cats = [...new Set(TERMS.map(x => x.c))].sort();
+const catControls = document.getElementById("catControls");
+cats.forEach(c => {
+  const btn = document.createElement("button");
+  btn.className = "cat-btn";
+  btn.dataset.cat = c;
+  btn.textContent = c;
+  const col = CAT_COLORS[c];
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeCat = c;
+    render();
+  });
+  catControls.appendChild(btn);
+});
+
+// All button
+document.querySelector("[data-cat='']").onclick = () => {
+  document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+  document.querySelector("[data-cat='']").classList.add("active");
+  activeCat = "";
+  render();
+};
+
+// Alpha bar
+const letters = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+const alphaBar = document.getElementById("alphaBar");
+const termFirstLetters = new Set(TERMS.map(t => t.t[0].toUpperCase()));
+let activeLetter = "";
+
+letters.forEach(l => {
+  const btn = document.createElement("button");
+  btn.className = "a-btn" + (termFirstLetters.has(l) ? " has-terms" : "");
+  btn.textContent = l;
+  btn.dataset.l = l;
+  btn.onclick = () => {
+    if (activeLetter === l) {
+      activeLetter = "";
+      btn.classList.remove("active");
+    } else {
+      document.querySelectorAll(".a-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeLetter = l;
+    }
+    render();
+  };
+  alphaBar.appendChild(btn);
+});
+
+// State
+let searchVal = "";
+let activeCat = "";
+
+const searchEl = document.getElementById("search");
+searchEl.addEventListener("input", e => {
+  searchVal = e.target.value.toLowerCase();
+  activeLetter = "";
+  document.querySelectorAll(".a-btn").forEach(b => b.classList.remove("active"));
+  render();
+});
+
+document.getElementById("sortSel").addEventListener("change", render);
+
+// Keyboard shortcut
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== searchEl) {
+    e.preventDefault();
+    searchEl.focus();
+  }
+  if (e.key === "Escape") {
+    searchEl.value = "";
+    searchVal = "";
+    render();
+  }
+});
+
+function highlight(text, q) {
+  if (!q) return text;
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx === -1) return text;
+  return text.slice(0, idx) + "<mark>" + text.slice(idx, idx + q.length) + "</mark>" + highlight(text.slice(idx + q.length), q);
+}
+
+function render() {
+  const q = searchVal;
+  const cat = activeCat;
+  const sort = document.getElementById("sortSel").value;
+  const grid = document.getElementById("dict");
+  const empty = document.getElementById("empty");
+
+  let filtered = TERMS.filter(term => {
+    if (cat && term.c !== cat) return false;
+    if (activeLetter && !term.t.toUpperCase().startsWith(activeLetter)) return false;
+    if (q) {
+      const haystack = (term.t + " " + term.d + " " + (term.also || "")).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sort === "cat") {
+    filtered.sort((a, b) => a.c.localeCompare(b.c) || a.t.localeCompare(b.t));
+  } else {
+    filtered.sort((a, b) => a.t.localeCompare(b.t));
+  }
+
+  document.getElementById("result-count").textContent =
+    filtered.length === TERMS.length
+      ? `${TERMS.length} terms`
+      : `${filtered.length} of ${TERMS.length} terms`;
+
+  // Remove all cards
+  Array.from(grid.querySelectorAll(".card")).forEach(c => c.remove());
+
+  if (!filtered.length) {
+    empty.style.display = "block";
+    document.getElementById("empty-hint").textContent = q ? `Try a different keyword — searched "${q}"` : "Try clearing filters";
+    return;
+  }
+  empty.style.display = "none";
+
+  filtered.forEach((term, i) => {
+    const col = CAT_COLORS[term.c] || { bg:"rgba(100,100,100,0.1)", border:"rgba(100,100,100,0.3)", text:"#aaa", bar:"#666" };
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.setProperty("--cat-color", col.bar);
+    card.style.animationDelay = Math.min(i * 18, 280) + "ms";
+
+    const termHL = highlight(term.t, q);
+    const defHL = highlight(term.d, q);
+    const alsoHL = term.also ? highlight(term.also, q) : "";
+
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="term">${termHL}</span>
+        <span class="badge" style="background:${col.bg};border-color:${col.border};color:${col.text}">${term.c}</span>
+      </div>
+      <p class="def">${defHL}</p>
+      ${term.also ? `<p class="also">${alsoHL}</p>` : ""}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
